@@ -6,7 +6,14 @@ defimpl Kino.Render, for: Req.Response do
         |> Kino.Render.Kino.Image.to_livebook()
 
       {_, "text/csv"} when is_list(response.body) ->
-        Kino.DataTable.new(response.body)
+        response.body
+        |> Enum.map(fn row ->
+          for {val, idx} <- Enum.with_index(row) do
+            {idx, val}
+          end
+          |> Map.new()
+        end)
+        |> Kino.DataTable.new()
         |> Kino.Render.Kino.DataTable.to_livebook()
 
       _ ->
